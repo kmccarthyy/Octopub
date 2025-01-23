@@ -5,13 +5,18 @@
 replicaCount: 1
 
 image:
-  repository: octopussamples/octopub-audit-microservice
+  repository: octopussamples/octopub-audit-microservice-mysql
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
 database:
   migrateOnStartup: true
+  hostname: mysqlserver
+  port: 3306
+  name: octopub_codefresh_development
+  username: root
+  password: octonaut
 
 application:
   disableAuth: false
