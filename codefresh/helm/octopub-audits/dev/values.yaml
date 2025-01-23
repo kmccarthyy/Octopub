@@ -8,7 +8,7 @@ image:
   repository: octopussamples/octopub-audit-microservice-mysql
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "20250122.381.1"
 
 database:
   migrateOnStartup: true
