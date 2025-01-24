@@ -13,7 +13,6 @@ image:
 database:
   migrateOnStartup: true
   hostname: mysql-clusterip.default.svc.cluster.local
-  # hostname: 10.42.2.50
   port: 3306
   name: octopub_codefresh_development
   username: root
