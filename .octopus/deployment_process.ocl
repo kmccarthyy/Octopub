@@ -1,0 +1,71 @@
+step "azure-key-vault-retrieve-secrets" {
+    name = "Azure Key Vault - Retrieve Secrets"
+
+    action {
+        properties = {
+            Azure.KeyVault.RetrieveSecrets.Account = "Octopus.Azure.Account"
+            Azure.KeyVault.RetrieveSecrets.PrintVariableNames = "True"
+            Azure.KeyVault.RetrieveSecrets.VaultName = "KellyOnsiteVault"
+            Azure.KeyVault.RetrieveSecrets.VaultSecrets = "test"
+            Octopus.Action.Template.Id = "ActionTemplates-6044"
+            Octopus.Action.Template.Version = "2"
+        }
+        worker_pool = "hosted-windows"
+        worker_pool_variable = ""
+    }
+}
+
+step "deploy-kubernetes-yaml" {
+    name = "Deploy Kubernetes YAML"
+    properties = {
+        Octopus.Action.TargetRoles = "demo-k8s-cluster"
+    }
+
+    action {
+        action_type = "Octopus.KubernetesDeployRawYaml"
+        properties = {
+            Octopus.Action.Kubernetes.DeploymentTimeout = "180"
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
+            Octopus.Action.Kubernetes.ServerSideApply.Enabled = "True"
+            Octopus.Action.Kubernetes.ServerSideApply.ForceConflicts = "True"
+            Octopus.Action.KubernetesContainers.CustomResourceYaml = <<-EOT
+                apiVersion: apps/v1
+                kind: Deployment
+                metadata:
+                  name: my-app
+                  namespace: default
+                spec:
+                  replicas: 2
+                  selector:
+                    matchLabels:
+                      app: my-app
+                  template:
+                    metadata:
+                      labels:
+                        app: my-app
+                    spec:
+                      imagePullSecrets:
+                        - name: acr-secret        # matches the secret name from earlier
+                      containers:
+                        - name: my-app
+                          image: kellywebappacr.azurecr.io/my-app:#{Octopus.Action.Package[my-app].PackageVersion}
+                          ports:
+                            - containerPort: 80
+                EOT
+            Octopus.Action.Script.ScriptSource = "Inline"
+        }
+        worker_pool = "hosted-windows"
+        worker_pool_variable = ""
+
+        packages "hello-world" {
+            acquisition_location = "NotAcquired"
+            feed = "kellyonsitefeed"
+            package_id = "samples/hello-world"
+            properties = {
+                Extract = "False"
+                Purpose = "DockerImageReference"
+                SelectionMode = "immediate"
+            }
+        }
+    }
+}
