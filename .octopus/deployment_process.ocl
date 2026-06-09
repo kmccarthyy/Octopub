@@ -32,23 +32,23 @@ step "deploy-kubernetes-yaml" {
                 apiVersion: apps/v1
                 kind: Deployment
                 metadata:
-                  name: my-app
+                  name: kellyonsite
                   namespace: default
                 spec:
                   replicas: 2
                   selector:
                     matchLabels:
-                      app: my-app
+                      app: kellyonsite
                   template:
                     metadata:
                       labels:
-                        app: my-app
+                        app: kellyonsite
                     spec:
                       imagePullSecrets:
                         - name: acr-secret        # matches the secret name from earlier
                       containers:
                         - name: my-app
-                          image: kellywebappacr.azurecr.io/my-app:#{Octopus.Action.Package[my-app].PackageVersion}
+                          image: kellywebappacr.azurecr.io/kellyonsite:#{Octopus.Action.Package[my-app].PackageVersion}
                           ports:
                             - containerPort: 80
                 EOT
